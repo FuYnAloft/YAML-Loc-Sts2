@@ -101,7 +101,8 @@ def pascal_to_upper_snake(name: str) -> str:
     if not name:
         return name
     s1 = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name)
-    return s1.upper()
+    s2 = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', s1)
+    return s2.upper()
 
 
 def upper_snake_to_pascal(name: str) -> str:
@@ -150,12 +151,12 @@ def flat_entries_to_json(path: Path, entries: Iterable[FlatEntry]) -> None:
 class Formatter(ABC):
     def forward(self, entry: Entry) -> FlatEntry:
         result = self.forward_key(entry.key)
-        assert entry.key == self.backward_key(result)
+        assert entry.key == self.backward_key(result), f"{entry.key} != {self.backward_key(result)}"
         return FlatEntry(result, entry.value)
 
     def backward(self, flat_entry: FlatEntry) -> Entry:
         result = self.backward_key(flat_entry.key)
-        assert flat_entry.key == self.forward_key(result)
+        assert flat_entry.key == self.forward_key(result), f"{flat_entry.key} != {self.forward_key(result)}"
         return Entry(result, flat_entry.value)
 
     @abstractmethod
@@ -182,7 +183,7 @@ class ModelFormatter(Formatter):
     def forward_key(self, key: tuple[str, ...]) -> str:
         l = list(key)
         if l[self.pos].startswith("$"):
-            l[self.pos] = l[self.pos][1:]
+            l[self.pos] = pascal_to_upper_snake(l[self.pos][1:])
         else:
             l[self.pos] = PREFIX + pascal_to_upper_snake(l[self.pos])
         return ".".join(l)
@@ -192,7 +193,7 @@ class ModelFormatter(Formatter):
         if l[self.pos].startswith(PREFIX):
             l[self.pos] = upper_snake_to_pascal(l[self.pos][len(PREFIX):])
         else:
-            l[self.pos] = "$" + l[self.pos]
+            l[self.pos] = "$" + upper_snake_to_pascal(l[self.pos])
         return tuple(l)
 
 
@@ -210,11 +211,11 @@ LOC_LIST = ['zhs']  # 支持的语言
 # ModelFormatter：智能处理 ModelId（PascelCase 与 UPPER_SNAKE_CASE 互转，并自动添加/去除 BaseLib 前缀）。pos 为 ModelId 的位置，默认为 0。
 NORMAL_TABLES = {
     'cards': ModelFormatter(),      # ModelId 为按点分割后的第一部分，故 pos 为 0（默认值）
-    'ancients': ModelFormatter(2),  # ModelId 为按点分割后的第一部分，故 pos 为 2
+    'ancients': ModelFormatter(2),  # ModelId 为按点分割后的第三部分，故 pos 为 2
     'gameplay_ui': DotFormatter(),  # 不涉及 ModelId，直接用 DotFormatter 处理
 }
 PREFIX = "EXAMPLEMOD" + "-"  # 如果使用 BaseLib 的 Custom 系列，在这里写前缀，否则写空字符串。
-# REMOVE_THIS_AFTER_FINISH_CONFIGURATION = 42  # 配置结束后，将这行代码移除。
+REMOVE_THIS_AFTER_FINISH_CONFIGURATION = 42  # 配置结束后，将这行代码移除。
 
 
 # endregion

@@ -1,3 +1,8 @@
+# /// script
+# dependencies = ["pyyaml"]
+# requires-python = ">=3.12"
+# ///
+
 from __future__ import annotations
 
 import json

@@ -1,0 +1,10 @@
+{
+    "EXAMPLEMOD-EXAMPLE_STRIKE.title": "打击",
+    "EXAMPLEMOD-EXAMPLE_STRIKE.description": "造成{Damage:diff()}点伤害",
+    "EXAMPLEMOD-EXAMPLE_DEFENSE.title": "防御",
+    "EXAMPLEMOD-EXAMPLE_DEFENSE.description": "获得{Block:diff()}点格挡",
+    "EXAMPLEMOD-EXAMPLE_MULTI_LINE.title": "一个描述很长的牌",
+    "EXAMPLEMOD-EXAMPLE_MULTI_LINE.description": "随机发动1种效果:\n- 直接获得本场战斗胜利\n- 直接获得本场战斗失败\n- 一键为群友安装杀戮尖塔2\n- 一键卸载杀戮尖塔2",
+    "NotACustomCard.title": "这是一张不使用 BaseLib 的卡",
+    "NotACustomCard.description": "使用$标记不添加 BaseLib 前缀。\n（如果整个模组都不用 BaseLib 的 CustomXxx，直接在配置里把 PREFIX 设置为空字符串就好了，不用加$前缀）"
+}

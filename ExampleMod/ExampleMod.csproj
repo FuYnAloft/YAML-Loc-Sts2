@@ -1,0 +1,11 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1" InitialTargets="CheckDependencyPaths">
+    <!-- 其他的配置 -->
+
+    <!-- 编译后自动将 yaml 格式的本地化文件转换为 json -->
+    <Target Name="ConvertLocalizationFromYamlToJson" AfterTargets="PostBuildEvent">
+        <Message Text="Converting localization yaml to json" Importance="high"/>
+        <Exec Command="python Tools/localization/convert.py"/>
+    </Target>
+
+    <!-- 其他的配置 -->
+</Project>

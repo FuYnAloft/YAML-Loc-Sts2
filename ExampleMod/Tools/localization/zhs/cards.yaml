@@ -1,0 +1,19 @@
+ExampleStrike:
+  title: 打击
+  description: 造成{Damage:diff()}点伤害
+ExampleDefense:
+  title: 防御
+  description: 获得{Block:diff()}点格挡
+ExampleMultiLine:
+  title: 一个描述很长的牌
+  description: |-
+    随机发动1种效果:
+    - 直接获得本场战斗胜利
+    - 直接获得本场战斗失败
+    - 一键为群友安装杀戮尖塔2
+    - 一键卸载杀戮尖塔2
+$NotACustomCard:
+  title: 这是一张不使用 BaseLib 的卡
+  description: |-
+    使用$标记不添加 BaseLib 前缀。
+    （如果整个模组都不用 BaseLib 的 CustomXxx，直接在配置里把 PREFIX 设置为空字符串就好了，不用加$前缀）

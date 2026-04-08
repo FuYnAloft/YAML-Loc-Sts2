@@ -1,0 +1,2 @@
+# 可以考虑 git 忽略 json 本地化目录，以减少合并冲突和保持仓库清洁
+# localization/

@@ -100,15 +100,30 @@ def restore_json(entries: Iterable[Entry]) -> JsonData:
 def pascal_to_upper_snake(name: str) -> str:
     if not name:
         return name
-    s1 = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name)
-    s2 = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', s1)
-    return s2.upper()
+
+    # 1. 模拟 C# 的 CamelCaseRegex: StringHelper.CamelCaseRegex().Replace(txt.Trim(), "$1_$2")
+    # 使用前向/后向断言：如果前面是字母/数字，后面是大写字母，就在中间插入下划线
+    # 这等价于 C# 中那个包含 \G 的复杂正则的实际运行效果
+    s = name.strip()
+    s = re.sub(r'(?<=[A-Za-z0-9])(?=[A-Z])', '_', s)
+
+    # 2. 模拟 WhitespaceRegex 并在之前转为大写: WhitespaceRegex().Replace(str.ToUpperInvariant(), "_")
+    s = re.sub(r'\s+', '_', s.upper())
+
+    # 3. 模拟 SpecialCharRegex: SpecialCharRegex().Replace(input, "")
+    # 移除所有非大写字母、非数字、非下划线的特殊符号
+    s = re.sub(r'[^A-Z0-9_]', '', s)
+
+    return s
 
 
 def upper_snake_to_pascal(name: str) -> str:
     if not name:
         return name
-    return "".join(word.capitalize() for word in name.split("_"))
+    # Python 的 capitalize() 会把首字母大写，同时强制把后面的字母变成小写
+    # 对于 "I_UPPER_CAMEL_CASE"，分割后变成 ["I", "UPPER", "CAMEL", "CASE"]
+    # 拼接后会完美还原成 "IUpperCamelCase"
+    return "".join(word.capitalize() for word in name.split("_") if word)
 
 
 def yaml_to_entries(path: Path) -> list[Entry]:

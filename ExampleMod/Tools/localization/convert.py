@@ -10,6 +10,7 @@ import re
 import sys
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import NamedTuple
 
@@ -191,22 +192,23 @@ class DotFormatter(Formatter):
         return tuple(key.split("."))
 
 
+@dataclass(slots=True, frozen=True)
 class ModelFormatter(Formatter):
-    def __init__(self, pos=0):
-        self.pos = pos
+    prefix: str
+    pos: int = 0
 
     def forward_key(self, key: tuple[str, ...]) -> str:
         l = list(key)
         if l[self.pos].startswith("$"):
             l[self.pos] = pascal_to_upper_snake(l[self.pos][1:])
         else:
-            l[self.pos] = PREFIX + pascal_to_upper_snake(l[self.pos])
+            l[self.pos] = self.prefix + pascal_to_upper_snake(l[self.pos])
         return ".".join(l)
 
     def backward_key(self, key: str) -> tuple[str, ...]:
         l = key.split(".")
-        if l[self.pos].startswith(PREFIX):
-            l[self.pos] = upper_snake_to_pascal(l[self.pos][len(PREFIX):])
+        if l[self.pos].startswith(self.prefix):
+            l[self.pos] = upper_snake_to_pascal(l[self.pos][len(self.prefix):])
         else:
             l[self.pos] = "$" + upper_snake_to_pascal(l[self.pos])
         return tuple(l)
@@ -223,13 +225,13 @@ YAML_LOC_ROOT = SCRIPT_PATH.parent  # yaml 本地化路径
 LOC_LIST = ['zhs']  # 支持的语言
 # 使用的本地化表和格式化器
 # DotFormatter：普通的依据点分割
-# ModelFormatter：智能处理 ModelId（PascelCase 与 UPPER_SNAKE_CASE 互转，并自动添加/去除 BaseLib 前缀）。pos 为 ModelId 的位置，默认为 0。
-NORMAL_TABLES = {
-    'cards': ModelFormatter(),      # ModelId 为按点分割后的第一部分，故 pos 为 0（默认值）
-    'ancients': ModelFormatter(2),  # ModelId 为按点分割后的第三部分，故 pos 为 2
+# ModelFormatter：智能处理 ModelId（PascelCase 与 UPPER_SNAKE_CASE 互转，并自动添加/去除 BaseLib/RitsuLib 前缀）。
+# prefix 为此类型 ModelId 的前缀，pos 为 ModelId 的位置，默认为 0。
+LOC_TABLES = {
+    'cards': ModelFormatter('EXAMPLE_MOD_CARD_'),  # ModelId 为按点分割后的第一部分，故 pos 为 0（默认值）
+    'ancients': ModelFormatter('EXAMPLE_MOD_CHARACTER_', 2),  # ModelId 为按点分割后的第三部分，故 pos 为 2
     'gameplay_ui': DotFormatter(),  # 不涉及 ModelId，直接用 DotFormatter 处理
 }
-PREFIX = "EXAMPLEMOD" + "-"  # 如果使用 BaseLib 的 Custom 系列，在这里写前缀，否则写空字符串。
 REMOVE_THIS_AFTER_FINISH_CONFIGURATION = 42  # 配置结束后，将这行代码移除。
 
 
@@ -240,7 +242,7 @@ def main_backward():
     for loc in LOC_LIST:
         json_loc_dir = JSON_LOC_ROOT / loc
         yaml_loc_dir = YAML_LOC_ROOT / loc
-        for table, fmt in NORMAL_TABLES.items():
+        for table, fmt in LOC_TABLES.items():
             if not (json_loc_dir / f"{table}.json").exists():
                 print(f"警告：{json_loc_dir / f'{table}.json'} 不存在，跳过。")
                 continue
@@ -254,7 +256,7 @@ def main_forward():
     for loc in LOC_LIST:
         json_loc_dir = JSON_LOC_ROOT / loc
         yaml_loc_dir = YAML_LOC_ROOT / loc
-        for table, fmt in NORMAL_TABLES.items():
+        for table, fmt in LOC_TABLES.items():
             if not (yaml_loc_dir / f"{table}.yaml").exists():
                 print(f"警告：{yaml_loc_dir / f'{table}.yaml'} 不存在，跳过。")
                 continue
